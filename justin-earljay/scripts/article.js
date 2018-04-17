@@ -1,6 +1,6 @@
 'use strict';
 
-function Article (rawDataObj) {
+function Article(rawDataObj) {
   this.author = rawDataObj.author;
   this.authorUrl = rawDataObj.authorUrl;
   this.title = rawDataObj.title;
@@ -14,10 +14,10 @@ Article.all = [];
 
 // COMMENT: Why isn't this method written as an arrow function?
 // Because there is a reference this inside the function. We want the 'this' of the new article made by the constructor.
-Article.prototype.toHtml = function() {
+Article.prototype.toHtml = function () {
   let template = Handlebars.compile($('#article-template').text());
 
-  this.daysAgo = parseInt((new Date() - new Date(this.publishedOn))/60/60/24/1000);
+  this.daysAgo = parseInt((new Date() - new Date(this.publishedOn)) / 60 / 60 / 24 / 1000);
 
   // COMMENT: What is going on in the line below? What do the question mark and colon represent? How have we seen this same logic represented previously?
   // Not sure? Check the docs!
@@ -35,7 +35,7 @@ Article.prototype.toHtml = function() {
 // COMMENT: Where is this function called? What does 'rawData' represent now? How is this different from previous labs?
 // It's called in the 'Article.fetchAll' function. 'rawData' represents all the blog article data. Before it was a declared variable in a seperate js file that was called on the same page. Now it's in a different file that is not being initiated on any page.
 Article.loadAll = articleData => {
-  articleData.sort((a,b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)))
+  articleData.sort((a, b) => (new Date(b.publishedOn)) - (new Date(a.publishedOn)))
 
   articleData.forEach(articleObject => Article.all.push(new Article(articleObject)))
 
@@ -49,25 +49,29 @@ Article.fetchAll = () => {
 
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
   // We decided to put the 'Article.fetchAll()' in the index.html and the '.initIndexPage()' function in the '.loadAll()' that is called by the 'Article.fetchAll()'  because we wanted to be sure that all the articles are retrieved before we render the index page.
+  let url = '../data/hackerIpsum.json';
+  let currentETag;
+  // let isTrue = true;
+  let storedETag = JSON.parse(localStorage.ETag);
+  compareETag(url, currentETag, storedETag);
+  // console.log(compareETag(url, currentETag, storedETag));
+  // console.log(eTagsMatch);
+  // if (eTagsMatch) {
+  //   let data = JSON.parse(localStorage.rawData)
 
-  if (localStorage.rawData) {
+  //   Article.loadAll(data);
 
-    let data = JSON.parse(localStorage.rawData)
+  //   console.log('loaded from local storage');
 
-    Article.loadAll(data);
+  // } else {
+  //   $.getJSON(url)
+  //     .then(data => Article.loadAll(data))
+  //     .catch(err => console.error('You Suck', err));
 
-    console.log('loaded from local storage');
+  //   console.log('loaded from database');
 
-  } else {
-    let url = '../data/hackerIpsum.json';
-
-    $.getJSON(url)
-      .then( data => Article.loadAll(data))
-      .catch( err => console.error('You Suck', err) );
-
-    console.log('loaded from database');
-
-  }
+  // }
+  // This was the code before the stretch goal. Below is where we compare eTags with our Ajax request.
 }
 
 Article.setToLocalStorage = () => {
@@ -75,4 +79,27 @@ Article.setToLocalStorage = () => {
   localStorage.setItem('rawData', rawDataJSON);
 }
 
-
+function compareETag(url, currentETag, storedETag) {
+  $.ajax({
+    type: 'HEAD',
+    url: url,
+    complete: function (XMLHttpRequest) {
+      currentETag = XMLHttpRequest.getResponseHeader('ETag');
+      console.log(currentETag);
+      console.log(storedETag);
+      if (currentETag === storedETag) {
+        let data = JSON.parse(localStorage.rawData);
+        Article.loadAll(data);
+        console.log('loaded from local storage');
+      }
+      else {
+        $.getJSON(url)
+          .then(data => Article.loadAll(data))
+          .catch(err => console.error('You Suck', err));
+        let jsonCurrentETag = JSON.stringify(currentETag);
+        localStorage.setItem('ETag', jsonCurrentETag);
+        console.log('loaded from database');
+      }
+    }
+  });
+}
