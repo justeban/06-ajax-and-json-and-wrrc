@@ -51,8 +51,14 @@ Article.fetchAll = () => {
   // We decided to put the 'Article.fetchAll()' in the index.html and the '.initIndexPage()' function in the '.loadAll()' that is called by the 'Article.fetchAll()'  because we wanted to be sure that all the articles are retrieved before we render the index page.
   let url = '../data/hackerIpsum.json';
   let currentETag;
+  let storedETag;
   // let isTrue = true;
-  let storedETag = JSON.parse(localStorage.ETag);
+  if (localStorage.ETag) {
+    storedETag = JSON.parse(localStorage.ETag);
+  } else {
+    storedETag = '';
+  }
+
   compareETag(url, currentETag, storedETag);
   // console.log(compareETag(url, currentETag, storedETag));
   // console.log(eTagsMatch);
