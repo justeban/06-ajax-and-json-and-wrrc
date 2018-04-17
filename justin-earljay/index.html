@@ -85,6 +85,7 @@
     <script src="scripts/articleView.js"></script>
     <script>
         Article.fetchAll();
+        // This function first gets the article data, either from local storage or our database if they don't already have it cached. Then it calls our '.loadAll' function, which creates instances of articles and populates the 'Article.all' array. Then we initalize the index and save to local storage.  
     </script>
   </body>
 </html>

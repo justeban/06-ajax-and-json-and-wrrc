@@ -46,7 +46,10 @@ Article.loadAll = articleData => {
 
 // REVIEW: This function will retrieve the data from either a local or remote source, and process it, then hand off control to the View.
 Article.fetchAll = () => {
+
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
+  // We decided to put the 'Article.fetchAll()' in the index.html and the '.initIndexPage()' function in the '.loadAll()' that is called by the 'Article.fetchAll()'  because we wanted to be sure that all the articles are retrieved before we render the index page.
+
   if (localStorage.rawData) {
 
     let data = JSON.parse(localStorage.rawData)
