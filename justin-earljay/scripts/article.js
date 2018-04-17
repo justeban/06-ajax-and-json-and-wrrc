@@ -40,6 +40,8 @@ Article.loadAll = articleData => {
   articleData.forEach(articleObject => Article.all.push(new Article(articleObject)))
 
   articleView.initIndexPage();
+
+  Article.setToLocalStorage();
 }
 
 // REVIEW: This function will retrieve the data from either a local or remote source, and process it, then hand off control to the View.
@@ -47,7 +49,11 @@ Article.fetchAll = () => {
   // REVIEW: What is this 'if' statement checking for? Where was the rawData set to local storage?
   if (localStorage.rawData) {
 
-    Article.loadAll();
+    let data = JSON.parse(localStorage.rawData)
+
+    Article.loadAll(data);
+
+    console.log('loaded from local storage');
 
   } else {
     let url = '../data/hackerIpsum.json';
@@ -56,7 +62,14 @@ Article.fetchAll = () => {
       .then( data => Article.loadAll(data))
       .catch( err => console.error('You Suck', err) );
 
+    console.log('loaded from database');
+
   }
+}
+
+Article.setToLocalStorage = () => {
+  let rawDataJSON = JSON.stringify(Article.all);
+  localStorage.setItem('rawData', rawDataJSON);
 }
 
 
